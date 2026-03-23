@@ -14,10 +14,59 @@
         height: 100%;
         margin: 0;
       }
+      #controls {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+        background: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        font-family: sans-serif;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      #controls label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
     </style>
   </head>
   <body>
     <div id="map"></div>
+    <div id="controls">
+      <b>Lớp bản đồ</b>
+      <label>
+        <input type="checkbox" id="cb1" checked />
+        <span class="dot" style="background: #3498db"></span>
+        geojson_07.1.1
+      </label>
+      <label>
+        <input type="checkbox" id="cb2" checked />
+        <span class="dot" style="background: #e74c3c"></span>
+        geomap_00.6.0
+      </label>
+      <label>
+        <input type="checkbox" id="cb3" checked />
+        <span
+          class="dot"
+          style="background: linear-gradient(90deg, #e74c3c, #3498db)"
+        ></span>
+        distmap_00.6.0.2
+      </label>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
       const map = L.map("map").setView([21.028, 105.834], 11);
@@ -26,17 +75,131 @@
         attribution: "© OpenStreetMap",
       }).addTo(map);
 
-      fetch("./geojson_83.8.0.json")
-        .then((res) => res.json())
-        .then((data) => {
-          const layer = L.geoJSON(data, {
+      const palette = [
+        "#e74c3c",
+        "#3498db",
+        "#2ecc71",
+        "#f39c12",
+        "#9b59b6",
+        "#1abc9c",
+        "#e67e22",
+        "#e91e63",
+        "#00bcd4",
+        "#8bc34a",
+        "#ff5722",
+        "#607d8b",
+        "#795548",
+        "#ff9800",
+        "#5c6bc0",
+        "#26a69a",
+        "#ef5350",
+        "#42a5f5",
+        "#66bb6a",
+        "#ffa726",
+        "#ab47bc",
+        "#26c6da",
+        "#d4e157",
+        "#ec407a",
+        "#7e57c2",
+        "#29b6f6",
+        "#9ccc65",
+        "#ffca28",
+        "#8d6e63",
+        "#78909c",
+      ];
+
+      const districtColor = {};
+      let colorIdx = 0;
+
+      function getDistrictColor(name) {
+        if (!name) return "#95a5a6";
+        if (!districtColor[name]) {
+          districtColor[name] = palette[colorIdx++ % palette.length];
+        }
+        return districtColor[name];
+      }
+
+      const layers = [null, null, null];
+
+      Promise.all([
+        fetch("./geojson_07.1.1.json").then((r) => r.json()),
+        fetch("./geomap_00.6.0.json").then((r) => r.json()),
+        fetch("./distmap_00.6.0.json").then((r) => r.json()),
+      ])
+        .then(([data1, data2, data3]) => {
+          layers[0] = L.geoJSON(data1, {
             style: () => ({
+              color: "#3498db",
               weight: 2,
               opacity: 0.8,
+              fillOpacity: 0.1,
             }),
           }).addTo(map);
 
-          map.fitBounds(layer.getBounds());
+          layers[1] = L.geoJSON(data2, {
+            style: () => ({
+              color: "#e74c3c",
+              weight: 2,
+              opacity: 0.8,
+              fillOpacity: 0.1,
+            }),
+          }).addTo(map);
+
+          // Xem properties của feature đầu tiên để biết key tên quận
+          const sample = data3.features?.[0]?.properties || {};
+          console.log("distmap properties:", sample);
+
+          // Thử các key phổ biến
+          function getNameFromProps(props) {
+            return (
+              props.NAME_2 ||
+              props.name ||
+              props.NAME ||
+              props.district ||
+              props.ten ||
+              props.TEN ||
+              props.DISTRICT ||
+              null
+            );
+          }
+
+          layers[2] = L.geoJSON(data3, {
+            style: (feature) => {
+              const name = getNameFromProps(feature.properties);
+              return {
+                color: "#333",
+                weight: 1.5,
+                opacity: 0.9,
+                fillColor: getDistrictColor(name),
+                fillOpacity: 0.45,
+              };
+            },
+            onEachFeature: (feature, layer) => {
+              const name = getNameFromProps(feature.properties) || "?";
+              layer.bindTooltip(`<b>${name}</b>`, { sticky: true });
+              layer.on({
+                mouseover(e) {
+                  e.target.setStyle({ fillOpacity: 0.75, weight: 2.5 });
+                  e.target.bringToFront();
+                },
+                mouseout(e) {
+                  layers[2].resetStyle(e.target);
+                },
+              });
+            },
+          }).addTo(map);
+
+          const bounds = layers[0].getBounds();
+          layers.slice(1).forEach((l) => bounds.extend(l.getBounds()));
+          map.fitBounds(bounds);
+
+          // Toggle
+          ["cb1", "cb2", "cb3"].forEach((id, i) => {
+            document.getElementById(id).addEventListener("change", function () {
+              if (this.checked) map.addLayer(layers[i]);
+              else map.removeLayer(layers[i]);
+            });
+          });
         })
         .catch((err) => console.error("Lỗi load file:", err));
     </script>
