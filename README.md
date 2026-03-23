@@ -214,8 +214,14 @@ z: Là số làm tròn đầu tiên của dung lượng file theo đơn vị MB
 t: Là số lần xuất hiện của file cùng định dạng, cùng dung lượng
 ```
 
+<p>Lệnh thực thi của đoạn code</p>
+
+```bash
+python index.py
+```
+
 <h2>Hết...</h2>
 
-v0.0 Trịnh Như Nhất
+v0.1 Trịnh Như Nhất
 
 
