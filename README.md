@@ -19,21 +19,35 @@
 <tr>
     <td align="center">1</td>
     <td align="center">Danh giới quận/huyện</td>
-    <td align="center">distmap</td>
+    <td align="center">__districts_{*name}__</td>
     <td align="center">2</td>
-    <td align="center">Vì bản đồ danh giới quận huyện cũ vẫn chưa được công khai nên đây sẽ là bản cũ theo các quận/huyện trong thành phố trước 1/7/2025.</td>
+    <td align="center">Vì bản đồ danh giới quận huyện cũ vẫn chưa được công khai nên đây sẽ là bản cũ theo các quận/huyện trước 1/7/2025.</td>
 </tr>
 <tr>
     <td align="center">2</td>
     <td align="center">Bản đồ đường đi của thành phố</td>
-    <td align="center">geojson</td>
+    <td align="center">__roads_{*name}__</td>
     <td align="center">7</td>
     <td align="center">Đây là bản đồ các tuyến đường trong thành phố với đa dạng option để lựa chọn để phù hợp và tối ưu việc load trang mượt mà.</td>
 </tr>
 <tr>
     <td align="center">3</td>
     <td align="center">Danh giới của thành phố</td>
-    <td align="center">geomap</td>
+    <td align="center">__boundary_hanoi__</td>
+    <td align="center">1</td>
+    <td align="center">Danh giới thành phố là bản đồ phân làn danh giữa các tỉnh/thành lân cận đảm nhận nhu cầu nổi bật hóa địa điểm đánh dấu.</td>
+</tr>
+<tr>
+    <td align="center">4</td>
+    <td align="center">Danh giới xã/phường của thành phố</td>
+    <td align="center">__wards_{*name}__</td>
+    <td align="center">1</td>
+    <td align="center">Danh giới xã/phuthành phố là bản đồ phân làn danh giữa các tỉnh/thành lân cận đảm nhận nhu cầu nổi bật hóa địa điểm đánh dấu.</td>
+</tr>
+<tr>
+    <td align="center">5</td>
+    <td align="center">Mật độ giao thông của thành phố</td>
+    <td align="center">__traffic_hanoi__</td>
     <td align="center">1</td>
     <td align="center">Danh giới thành phố là bản đồ phân làn danh giữa các tỉnh/thành lân cận đảm nhận nhu cầu nổi bật hóa địa điểm đánh dấu.</td>
 </tr>
@@ -223,5 +237,3 @@ python index.py
 <h2>Hết...</h2>
 
 v0.1 Trịnh Như Nhất
-
-
